@@ -1,0 +1,655 @@
+begin
+	dbms_output.put_line('Welcome to the world of Magic');
+end;
+/
+
+declare - Optional
+begin - Mandatory
+exception - Optional
+end - Mandatory
+
+1. variable
+2. record
+3. cursor
+
+declare
+	a number(3,1) := 10.5;
+	b number(3,1) := 20.5;
+	c number(3);
+begin
+	c := a + b;
+	dbms_output.put_line('The Addition is : '||c);
+end;
+/
+
+declare
+	name varchar(50);
+	sal number(9);
+begin
+	select last_name, Salary
+	into name, sal
+	from employees
+	where employee_id = 100;
+	dbms_output.put_line('Name is :'||name);
+	dbms_output.put_line('Salary is :'||sal);
+end;
+/
+
+
+Create or replace procedure Proc1 (id number)
+as
+	name varchar(50);
+	salary number(9);
+	v_hiredate employees.hire_date%type;
+begin
+	select last_name, Salary, hire_date
+	into name, salary, v_hiredate
+	from employees
+	where employee_id = id;
+	dbms_output.put_line('Name is :'||name);
+	dbms_output.put_line('Salary is :'||salary);
+	dbms_output.put_line('Hired on :'||v_hiredate);
+end;
+/
+
+
+declare
+	a employees.employee_id%type;
+	b employees.salary%type;
+	c number(6,2);
+begin
+	select count(employee_id), SUM(Salary), AVG(Salary)
+	into a, b, c
+	from employees;
+	dbms_output.put_line(a||b||c);
+end;
+/
+
+
+select count(employee_id), SUM(Salary), AVG(NVL(Salary, 0)), MIN(Salary), MAX(Salary)
+from employees;
+
+select AVG(Salary)
+from employees;
+
+select AVG(Commission_PCT), AVG(NVL(commission_pct, 0))
+from employees;
+
+select count(commission_pct)
+from employees
+
+select department_id, count(employee_id), sum(salary), AVG(NVL(SALARY, 0))
+from employees
+group by department_id
+
+select job_id, count(employee_id), sum(salary), AVG(NVL(SALARY, 0)), Min(Salary), Max(Salary)
+from employees
+group by job_id
+having AVG(SALARY) > 8000
+
+
+select department_id, count(employee_id)
+from employees
+where department_id is not null
+group by department_id;
+
+
+
+declare
+	did employees.department_id%type;
+	c employees.employee_id%type;
+begin
+	select department_id, count(employee_id)
+	into did, c
+	from employees
+	where department_id is not null
+	group by department_id;
+
+	dbms_output.put_line(did||' '||c);
+end;
+/
+
+
+BASIC
+WHILE
+FOR
+
+DECLARE
+	i number(3) := 1;
+BEGIN
+	LOOP 
+		dbms_output.put_line(i);
+		i := i + 1;
+	EXIT WHEN i > 10;
+	END LOOP;
+	
+END;
+/
+
+DECLARE
+	i number(3) := 1;
+BEGIN
+	WHILE i <= 10 LOOP 
+		dbms_output.put_line(i);
+		i := i + 1;
+	END LOOP;
+	
+END;
+/
+
+
+BEGIN
+	FOR i in 1..10 LOOP 
+		dbms_output.put_line(i);
+	END LOOP;
+	
+END;
+/
+
+
+Declare
+	TYPE emp_rec is record
+	(ID employees.employee_ID%type,
+	 Sal employees.Salary%type,
+	 Job employees.job_id%type);	
+	
+	rec emp_rec;
+begin
+	select employee_id, salary, job_id
+	into rec
+	from employees
+	where employee_id = 100;
+
+	dbms_output.put_line(rec.ID);
+	dbms_output.put_line(rec.job);
+end;
+/
+
+
+declare
+	emp_rec employees%rowtype;
+begin
+	select *
+	into emp_rec
+	from employees
+	where employee_id = 110;
+	dbms_output.put_line(emp_rec.employee_id);
+	dbms_output.put_line(emp_rec.last_name);
+	dbms_output.put_line(emp_rec.Salary);
+end;
+/
+
+declare
+	dept_rec departments%rowtype;
+begin
+	select *
+	into dept_rec
+	from departments
+	where department_id = 200;
+	dbms_output.put_line(dept_rec.department_id);
+	dbms_output.put_line(dept_rec.department_name);
+end;
+/
+
+
+declare
+	id employees.employee_id%type;
+	sal employees.salary%type;
+	name employees.last_name%type;
+
+	cursor emp_cursor is
+	  Select employee_id, salary, last_name
+	  from employees
+	  where department_id = 60;
+
+begin
+	open emp_cursor;
+
+	LOOP
+		fetch emp_cursor into id, sal, name;
+		dbms_output.put_line(id||' '||sal||' '||name);
+	EXIT WHEN emp_cursor%notfound;
+	END LOOP;
+
+	close emp_cursor;
+end;
+/
+
+-- Cursor with variable
+declare
+	id employees.employee_id%type;
+	sal employees.salary%type;
+	name employees.last_name%type;
+
+	cursor emp_cursor is
+	  Select employee_id, salary, last_name
+	  from employees
+	  where department_id = 60;
+
+begin
+	open emp_cursor;
+
+	LOOP
+		fetch emp_cursor into id, sal, name;
+		dbms_output.put_line(id||' '||sal||' '||name);
+	EXIT WHEN emp_cursor%notfound;
+	END LOOP;
+
+	close emp_cursor;
+end;
+/
+
+-- Cursor with records
+declare
+	cursor emp_cursor is
+	  Select employee_id, salary, last_name
+	  from employees
+	  where department_id = 60;
+
+	rec emp_cursor%rowtype;
+
+begin
+	open emp_cursor;
+
+	LOOP
+		fetch emp_cursor into rec;
+		dbms_output.put_line(rec.employee_id||' '||rec.salary||' '||rec.last_name);
+	EXIT WHEN emp_cursor%notfound;
+	END LOOP;
+
+	close emp_cursor;
+end;
+/
+
+-- Cursor with for loop
+declare
+	cursor emp_cursor is
+	  Select employee_id, salary, last_name
+	  from employees
+	  where department_id = 60;
+
+begin
+	FOR rec in emp_cursor loop
+		dbms_output.put_line(rec.employee_id||' '||rec.salary||' '||rec.last_name);
+	END LOOP;
+end;
+/
+
+
+-- Cursor for loop using sub queries
+begin
+	FOR rec in ( Select employee_id, salary, last_name from employees  where department_id = 60) loop
+		dbms_output.put_line(rec.employee_id||' '||rec.salary||' '||rec.last_name);
+	END LOOP;
+end;
+/
+
+
+
+Create or replace procedure MeraProc(id number)
+as
+begin
+	FOR rec in ( Select employee_id, salary, last_name from employees  where department_id = id) loop
+		dbms_output.put_line(rec.employee_id||' '||rec.salary||' '||rec.last_name);
+	END LOOP;
+end;
+/
+
+
+
+begin
+	FOR rec in (Select employee_id, last_name, salary, job_id
+			from employees
+			where Salary > (Select Salary
+		from employees
+		where employee_id = 157)) loop
+		dbms_output.put_line(rec.employee_id||' '||rec.salary||' '||rec.last_name);
+	END LOOP;
+end;
+/
+
+Select employee_id, last_name, salary, job_id
+from employees
+where Salary > (Select Salary
+		from employees
+		where employee_id = 157)
+
+
+Select employee_id, last_name, salary, job_id
+from employees
+where Salary > (Select AVG(NVL(Salary,0))
+		from employees);
+
+
+Select employee_id, last_name, salary, job_id
+from employees
+where department_id = (Select department_id
+			from departments
+			where department_name = 'Sales');
+
+
+
+Select employee_id, last_name, salary, job_id
+from employees
+where Job_ID = (Select Job_ID
+		from employees
+		where employee_id = 198)
+
+
+
+Select employee_id, last_name, salary, job_id
+from employees
+where manager_id = (Select employee_id
+		from employees
+		where last_name = 'Vollman')
+
+
+Select employee_id, last_name, salary, job_id
+from employees
+where manager_id IN (Select employee_id
+		from employees
+		where last_name = 'King')
+
+
+Select employee_id, last_name, salary, job_id
+from employees
+where salary IN	(Select Salary -- 3200, 6800, 10000
+		from employees
+		where employee_id in (125, 150, 165))
+
+Select employee_id, last_name, salary, job_id
+from employees
+where salary =ANY (Select Salary -- 3200, 6800, 10000
+		from employees
+		where employee_id in (125, 150, 165))
+
+Select employee_id, last_name, salary, job_id
+from employees
+where salary =ALL (Select Salary -- 3200, 6800, 10000
+		from employees
+		where employee_id in (125, 150, 165))
+
+Select employee_id, last_name, salary, job_id
+from employees
+where salary >ANY (Select Salary -- 3200, 6800, 10000
+		   from employees
+     		   where employee_id in (125, 150, 165))
+
+
+Select employee_id, last_name, salary, job_id
+from employees
+where salary >ANY (Select MIN(Salary) -- 3200, 6800, 10000
+		   from employees
+     		   where employee_id in (125, 150, 165))
+
+Select employee_id, last_name, salary, job_id
+from employees
+where salary <ANY (Select Salary -- 3200, 6800, 10000
+		   from employees
+     		   where employee_id in (125, 150, 165))
+
+Select employee_id, last_name, salary, job_id
+from employees
+where salary <ANY (Select MAX(Salary) -- 3200, 6800, 10000
+		   from employees
+     		   where employee_id in (125, 150, 165))
+
+Select employee_id, last_name, salary, job_id
+from employees
+where salary >ALL (Select Salary -- 3200, 6800, 10000
+		   from employees
+     		   where employee_id in (125, 150, 165))
+
+
+Select employee_id, last_name, salary, job_id
+from employees
+where salary <ALL (Select Salary -- 3200, 6800, 10000
+		   from employees
+     		   where employee_id in (125, 150, 165))
+
+
+----------------------------
+
+Constraints
+1. Primary Key - NOT NULL + UNIQUE
+2. Unique key - Unique + NULL
+3. NOT NULL
+4. CHECK 
+5. Default
+6. Foreign KEY - which references to primary key
+
+
+
+CREATE TABLE DEPT
+(DID NUMBER(3) PRIMARY KEY,
+ DNAME varchar(10) NOT NULL)
+
+Create table Emp
+(EID NUMBER(3) primary key,
+ NAME varchar(10) NOT NULL,
+ SALARY NUMBER(6) CHECK (SALARY between 100000 and 999999),
+ PAN NUMBER(3) UNIQUE,
+ COUNTRY VARCHAR(10) DEFAULT 'INDIA',
+ DID NUMBER(3) references DEPT(DID),
+ MID NUMBER(3) references EMP(EID) )
+
+
+Insert into Emp
+values(100, 'Nikhil', 100000, 123, default, 10, NULL);
+Insert into Emp
+values(101, 'Nitin', 100001, NULL, default, 10, 100);
+Insert into Emp
+values(102, 'Jack', 100002, NULL, 'US', 20, 100);
+Insert into Emp
+values(103, 'Rose', 100003, 234, 'UK', NULL, NULL);
+Insert into Emp
+values(104, 'Prekshita', 100000, 567, 'US', 30, 102);
+Insert into Emp
+values(105, 'Viren', 999999, 767, default, NULL, 104);
+
+
+
+
+Insert into DEPT (DID, DNAME)
+values(10, 'IT');
+Insert into DEPT (DID, DNAME)
+values(20, 'HR');
+Insert into DEPT (DID, DNAME)
+values(30, 'Sales');
+Insert into DEPT (DID, DNAME)
+values(40, 'Finance');
+
+
+Insert into DEPT (DID, DNAME)
+values(50, 'NULL');
+
+
+select EID, Name, Salary, DName
+from emp e inner join dept d
+on e.DID = d.DID
+
+select EID, Name, Salary, DName
+from emp e, dept d
+where e.DID = d.DID
+
+
+select EID, Name, Salary, DName
+from emp e left outer join dept d
+on e.DID = d.DID
+
+select EID, Name, Salary, DName
+from emp e, dept d
+where e.DID = d.DID(+)
+
+select EID, Name, Salary, DName
+from emp e right outer join dept d
+on e.DID = d.DID
+
+select EID, Name, Salary, DName
+from emp e, dept d
+where e.DID(+) = d.DID
+
+select EID, Name, Salary, DName
+from emp e, dept d
+where e.DID = d.DID
+
+select EID, Name, Salary, DName
+from emp e full outer join dept d
+on e.DID = d.DID
+
+select EID, Name, Salary, DName
+from emp e, dept d
+where e.DID(+) = d.DID(+)
+
+select e.EID, e.Name, e.Salary, d.DName, e.DID
+from emp e inner join dept d
+on e.DID = d.DID
+
+select m.Name ||' is a manager of '||w.name
+from emp m join emp w
+on m.EID = w.MID
+
+select w.Name ||' works '||m.name
+from emp m join emp w
+on m.EID = w.MID
+
+select e1.Name, e1.Salary, e2.salary, e2.name
+from emp e1 cross join emp e2
+where e1.EID <> e2.EID
+
+Create or replace function tax (a number)
+return number
+as
+begin
+	return (a * 0.3);	
+end;
+/
+
+
+Create or replace function transform(a number)
+return varchar
+as
+begin
+	return (
+		'('||Substr(a, 1, 3)||')-('
+		   ||substr(a, 4, 3)||'):'
+		   ||Substr(a, 7, 3)||'('
+		   ||Substr(a, 10, 1)||')');	
+end;
+/
+
+
+Create or replace function Name(a varchar)
+return varchar
+as
+begin
+	return (UPPER(substr(a, 1, 3)));
+end;
+/
+
+Create or replace function Name(a varchar(3))
+return varchar
+as
+begin
+	return (UPPER(a));
+end;
+/
+
+0123456789
+
+(012)-(345):678(9)
+
+Select '('||Substr('0123456789', 1, 3)||')-('||substr('0123456789', 4, 3)||'):'||Substr('0123456789', 7, 3)||'('||Substr('0123456789', 10, 1)||')'
+from dual
+
+
+Create or replace trigger trg_safety
+before INSERT OR UPDATE OR DELETE
+ON DEPT
+BEGIN
+	IF (TO_CHAR(sysdate, 'DY') IN ('SAT', 'SUN')) THEN
+	RAISE_APPLICATION_ERROR(-20500, 'AAJ CHUTTI HAI');
+	END IF;
+	
+END;
+/
+
+Create or replace trigger trg_safety
+before INSERT OR UPDATE OR DELETE
+ON DEPT
+BEGIN
+	IF (TO_CHAR(sysdate, 'HH24') between 18 AND 19) THEN
+	RAISE_APPLICATION_ERROR(-20500, 'SNACKS TIME');
+	END IF;
+	
+END;
+/
+
+
+select TO_CHAR(sysdate, 'HH24')
+from dual;
+
+CREATE TABLE TRANSACTION
+(ID NUMBER(3),
+ NAME VARCHAR(10),
+ AMOUNT NUMBER(4))
+
+insert into transaction
+values(10, 'ABC', 698);
+
+update transaction
+set amount = 1000
+where ID = 10
+
+delete from transaction
+where ID = 20
+
+CREATE TABLE XAUDIT
+(USERNAME VARCHAR(10),
+ TDATE TIMESTAMP,
+ OLD_ID NUMBER(3),
+ NEW_ID NUMBER(3),
+ OLD_NAME VARCHAR(10),
+ NEW_NAME VARCHAR(10),
+ OLD_AMOUNT NUMBER(4),
+ NEW_AMOUNT NUMBER(4),
+ XTYPE VARCHAR(10))
+
+
+Create or replace trigger trg_srk
+after INSERT OR UPDATE OR DELETE
+ON TRANSACTION
+FOR EACH ROW
+BEGIN
+	insert into XAUDIT
+	values(USER, sysdate, :OLD.ID, :NEW.ID, :OLD.Name, :NEW.Name, :OLD.Amount, :NEW.Amount, 'Changed');
+END;
+/
+
+insert into transaction
+values(10, 'ABC', 698);
+
+update transaction
+set amount = 1000
+where ID = 10
+
+delete from transaction
+where ID = 20
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
